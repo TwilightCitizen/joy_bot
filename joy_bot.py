@@ -92,8 +92,10 @@ class JoyBot(KikClientCallback):
             self.on_user_invited_to_group(response)
         elif "was added to the group by" in response.status:
             self.on_user_added_to_group(response)
-        else:
-            self.on_new_user_in_group(response)
+        elif "has left the chat" in response.status:
+            self.on_user_left_group(response)
+        elif "have removed" in response.status or "has removed" in response.status:
+            self.on_user_removed_from_group(response)
 
     def on_user_joined_group(self, response: chatting.IncomingGroupStatus):
         print("User Joined")
@@ -110,6 +112,14 @@ class JoyBot(KikClientCallback):
         # print(os.getenv("DEFAULT_ADD_MESSAGE").format(joiner=response.status_jid))
         self.on_new_user_in_group(response)
 
+    def on_user_removed_from_group(self, response: chatting.IncomingGroupStatus):
+        print("User Removed")
+        self.on_user_gone_from_group(response)
+
+    def on_user_left_group(self, response: chatting.IncomingGroupStatus):
+        print("User Left")
+        self.on_user_gone_from_group(response)
+
     def on_new_user_in_group(self, response: chatting.IncomingGroupStatus):
         if response.status_jid in self.user_groups.keys():
             self.user_groups[response.status_jid].append(response.group_jid)
@@ -117,6 +127,9 @@ class JoyBot(KikClientCallback):
             self.user_groups[response.status_jid] = [response.group_jid]
 
         self.client.request_info_of_users(response.status_jid)
+
+    def on_user_gone_from_group(self, response: chatting.IncomingGroupStatus):
+        print("User Gone")
 
     def on_peer_info_received(self, response: PeersInfoResponse):
         print("Peer Info Received")
@@ -134,7 +147,7 @@ class JoyBot(KikClientCallback):
             for group in user_groups:
                 self.client.send_chat_message(
                     group,
-                    os.getenv("REQUIRE_PROFILE_PICTURE_DEFAULT_MESSAGE").format(joiner=user.display_name)
+                    os.getenv("REQUIRE_PROFILE_PICTURE_MESSAGE_DEFAULT").format(joiner=user.display_name)
                 )
 
                 self.client.remove_peer_from_group(group, user.jid)
@@ -142,7 +155,7 @@ class JoyBot(KikClientCallback):
             # Greet
 
     def on_group_sysmsg_received(self, response: chatting.IncomingGroupSysmsg):
-        print("Group Sysmsg Received")
+        print("Group System Message Received")
         print(response.sysmsg)
 
 
