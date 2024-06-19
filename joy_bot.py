@@ -1,6 +1,7 @@
-import os
-import time
-import threading
+# Library Imports
+
+from datetime import datetime, timedelta
+from typing import Union
 
 from kik_unofficial.client import KikClient
 from kik_unofficial.callbacks import KikClientCallback
@@ -8,56 +9,79 @@ import kik_unofficial.datatypes.xmpp.chatting as chatting
 from kik_unofficial.datatypes.xmpp.chatting import KikPongResponse
 from kik_unofficial.datatypes.xmpp.errors import LoginError
 from kik_unofficial.datatypes.xmpp.login import ConnectionFailedResponse, TempBanElement
-from kik_unofficial.datatypes.xmpp.roster import PeersInfoResponse
-from kik_unofficial.datatypes.xmpp.xiphias import GroupSearchResponse
+from kik_unofficial.datatypes.xmpp.roster import PeersInfoResponse, FetchRosterResponse
+from kik_unofficial.datatypes.xmpp.xiphias import GroupSearchResponse, UsersResponse, UsersByAliasResponse
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from dotenv import load_dotenv
 
+# Application Imports
+
+from config import Authentication, KeepAliveTimer, CapMembers, DisallowQuietJoiners, DisallowQuietLurkers, RequireProfilePics, RequireMinimumAccountAge
+
+# Configuration
+
 load_dotenv()
+
+# Definitions
 
 
 class JoyBot(KikClientCallback):
     def __init__(self):
+        print("Initializing")
+
+        self.authentication = Authentication()
+        self.keep_alive_timer = KeepAliveTimer()
+        self.cap_members = CapMembers()
+        self.disallow_quiet_joiners = DisallowQuietJoiners()
+        self.disallow_quiet_lurkers = DisallowQuietLurkers()
+        self.require_profile_pics = RequireProfilePics()
+        self.require_min_account_age = RequireMinimumAccountAge()
+        self.scheduler = BackgroundScheduler()
+        self.rosters = dict()
+
+        print("Authenticating")
+
         self.client = KikClient(
             self,
-            os.getenv("JOY_BOT_USERNAME"),
-            os.getenv("JOY_BOT_PASSWORD"),
+            self.authentication.username,
+            self.authentication.password,
             enable_console_logging=True
         )
 
-        self.user_groups = dict()
-        self.scheduler = BackgroundScheduler()
-
-        self.scheduler.start()
-        self.client.wait_for_messages()
-
     def start_keep_alive(self):
-        print("Scheduling Periodic Ping for Keep Alive")
+        if not self.keep_alive_timer.enabled:
+            return
+
+        print("Starting Periodic Ping for Keep Alive")
 
         self.scheduler.add_job(
             self.client.send_ping,
             "interval",
-            minutes=int(os.getenv("KEEP_ALIVE_PING_INTERVAL_MINUTES_DEFAULT")),
-            id="KEEP_ALIVE_INTERVAL"
+            minutes=int(self.keep_alive_timer.interval.get()),
+            id=self.keep_alive_timer.id,
         )
 
     def stop_keep_alive(self):
+        if not self.keep_alive_timer.enabled:
+            return
+
         print("Stopping Periodic Ping for Keep Alive")
 
-        if self.scheduler.get_job("KEEP_ALIVE_INTERVAL"):
-            self.scheduler.remove_job("KEEP_ALIVE_INTERVAL")
+        if self.scheduler.get_job(self.keep_alive_timer.id):
+            self.scheduler.remove_job(self.keep_alive_timer.id)
 
     def on_authenticated(self):
         print("Authenticated")
+        self.client.wait_for_messages()
+        self.scheduler.start()
         self.start_keep_alive()
+        print("Requesting Rosters")
+        self.client.request_roster()
 
     def on_pong(self, response: KikPongResponse):
         print("Received Pong")
-
-    # def on_chat_message_received(self, chat_message: chatting.IncomingChatMessage):
-    #     self.client.send_chat_message(chat_message.from_jid, f'"{chat_message.from_jid}" said "{chat_message.body}"!')
 
     def on_login_error(self, login_error: LoginError):
         print("Login Error")
@@ -84,7 +108,7 @@ class JoyBot(KikClientCallback):
 
     def on_group_status_received(self, response: chatting.IncomingGroupStatus):
         print("Group Status Received")
-        print(response.raw_element)
+        print(response.raw_element.prettify())
 
         if "has joined the chat" in response.status:
             self.on_user_joined_group(response)
@@ -99,17 +123,14 @@ class JoyBot(KikClientCallback):
 
     def on_user_joined_group(self, response: chatting.IncomingGroupStatus):
         print("User Joined")
-        # print(os.getenv("DEFAULT_JOIN_MESSAGE").format(joiner=response.status_jid))
         self.on_new_user_in_group(response)
 
     def on_user_invited_to_group(self, response: chatting.IncomingGroupStatus):
         print("User Invited")
-        # print(os.getenv("DEFAULT_INVITE_MESSAGE").format(joiner=response.status_jid))
         self.on_new_user_in_group(response)
 
     def on_user_added_to_group(self, response: chatting.IncomingGroupStatus):
         print("User Added")
-        # print(os.getenv("DEFAULT_ADD_MESSAGE").format(joiner=response.status_jid))
         self.on_new_user_in_group(response)
 
     def on_user_removed_from_group(self, response: chatting.IncomingGroupStatus):
@@ -121,43 +142,84 @@ class JoyBot(KikClientCallback):
         self.on_user_gone_from_group(response)
 
     def on_new_user_in_group(self, response: chatting.IncomingGroupStatus):
-        if response.status_jid in self.user_groups.keys():
-            self.user_groups[response.status_jid].append(response.group_jid)
+        print("New User")
+
+        if response.status_jid in self.rosters.keys():
+            self.rosters[response.status_jid].append(response.group_jid)
         else:
-            self.user_groups[response.status_jid] = [response.group_jid]
+            self.rosters[response.status_jid] = [response.group_jid]
 
         self.client.request_info_of_users(response.status_jid)
+        self.client.xiphias_get_users(response.status_jid)
 
     def on_user_gone_from_group(self, response: chatting.IncomingGroupStatus):
         print("User Gone")
 
+    def on_roster_received(self, response: FetchRosterResponse):
+        print("Rosters Received")
+        print(response.raw_element.prettify())
+
     def on_peer_info_received(self, response: PeersInfoResponse):
         print("Peer Info Received")
-        print(response.raw_element)
+        print(response.raw_element.prettify())
 
-        if os.getenv("REQUIRE_PROFILE_PICTURE_ENFORCED"):
-            self.on_check_new_user_profile_pic(response)
+        if self.require_profile_pics.enabled:
+            if self.new_user_account_is_missing_profile_pic(response):
+                return
 
-    def on_check_new_user_profile_pic(self, response: PeersInfoResponse):
+    def on_xiphias_get_users_response(self, response: Union[UsersResponse, UsersByAliasResponse]):
+        print("Xiphias Info Received")
+        print(response.raw_element.prettify())
+
+        if self.require_min_account_age.enabled:
+            if self.new_user_account_age_is_less_than_minimum_days(response):
+                return
+
+    def new_user_account_is_missing_profile_pic(self, response: PeersInfoResponse):
         user = response.users[0]
 
-        if user.profile_pic is None and user.jid in self.user_groups.keys():
-            user_groups = self.user_groups.pop(user.jid)
+        if user.profile_pic is None and user.jid in self.rosters.keys():
+            user_groups = self.rosters.pop(user.jid)
 
             for group in user_groups:
                 self.client.send_chat_message(
                     group,
-                    os.getenv("REQUIRE_PROFILE_PICTURE_MESSAGE_DEFAULT").format(joiner=user.display_name)
+                    self.require_profile_pics.message.format(joiner=user.display_name)
                 )
 
-                self.client.remove_peer_from_group(group, user.jid)
-        # else:
-            # Greet
+                self.scheduler.add_job(
+                    self.client.remove_peer_from_group(),
+                    "date",
+                    run_date=datetime.now() + timedelta(seconds=5),
+                    args=[group, user.jid],
+                )
+
+            return True
+
+        else:
+            return False
+
+    def new_user_account_age_is_less_than_minimum_days(self, response: Union[UsersResponse, UsersByAliasResponse]):
+        # user = response.users[0]
+        # epoch = datetime(1970, 1, 1)
+        # epoch_to_now_delta = datetime.now() - epoch
+        # epoch_to_now_seconds = epoch_to_now_delta.total_seconds()
+        # epoch_plus_creation_date_seconds = epoch + timedelta(seconds=user.creation_date_seconds)
+        #
+        # print("Account Age in Seconds: ", user.creation_date_seconds)
+        # print("Today's Date in Seconds: ", epoch_to_now_seconds)
+        # print("User Account Creation Date: ", epoch_plus_creation_date_seconds)
+
+        print(response.message)
+
+        return False
 
     def on_group_sysmsg_received(self, response: chatting.IncomingGroupSysmsg):
         print("Group System Message Received")
+
         print(response.sysmsg)
 
+# Execution
 
 if __name__ == '__main__':
     _ = JoyBot()
