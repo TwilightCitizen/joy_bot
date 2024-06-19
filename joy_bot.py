@@ -50,6 +50,10 @@ class JoyBot(KikClientCallback):
             enable_console_logging=True
         )
 
+        self.client.wait_for_messages()
+        self.scheduler.start()
+        self.start_keep_alive()
+
     def start_keep_alive(self):
         if not self.keep_alive_timer.enabled:
             return
@@ -74,9 +78,6 @@ class JoyBot(KikClientCallback):
 
     def on_authenticated(self):
         print("Authenticated")
-        self.client.wait_for_messages()
-        self.scheduler.start()
-        self.start_keep_alive()
         print("Requesting Rosters")
         self.client.request_roster()
 
@@ -120,6 +121,8 @@ class JoyBot(KikClientCallback):
             self.on_user_left_group(response)
         elif "have removed" in response.status or "has removed" in response.status:
             self.on_user_removed_from_group(response)
+        elif "has promoted" in response.status:
+            self.on_user_promoted_in_group(response)
 
     def on_user_joined_group(self, response: chatting.IncomingGroupStatus):
         print("User Joined")
@@ -154,6 +157,9 @@ class JoyBot(KikClientCallback):
 
     def on_user_gone_from_group(self, response: chatting.IncomingGroupStatus):
         print("User Gone")
+
+    def on_user_promoted_in_group(self, response: chatting.IncomingGroupStatus):
+        print("User Promoted")
 
     def on_roster_received(self, response: FetchRosterResponse):
         print("Rosters Received")
