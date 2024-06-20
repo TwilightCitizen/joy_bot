@@ -10,7 +10,7 @@ from kik_unofficial.datatypes.xmpp.errors import LoginError
 from kik_unofficial.datatypes.xmpp.login import ConnectionFailedResponse, TempBanElement
 from kik_unofficial.datatypes.xmpp.roster import PeersInfoResponse, FetchRosterResponse
 from kik_unofficial.datatypes.xmpp.xiphias import UsersResponse, UsersByAliasResponse
-from kik_unofficial.datatypes.peers import User
+from kik_unofficial.datatypes.peers import User, Group
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -152,6 +152,11 @@ class JoyBot(KikClientCallback):
     def on_roster_received(self, response: FetchRosterResponse):
         print("Rosters Received")
         print(response.raw_element.prettify())
+
+        groups: list[Group] = [elem for elem in response.peers if isinstance(elem, Group)]
+
+        for group in groups:
+            print(group.name)
 
     def on_peer_info_received(self, response: PeersInfoResponse):
         print("Peer Info Received")
