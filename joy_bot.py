@@ -38,54 +38,36 @@ class JoyBot(KikClientCallback):
         print("Initializing")
 
         self.authentication: Authentication = Authentication()
-        self.keep_alive_ping: KeepAlivePing = KeepAlivePing()
         self.limit_member_capacity: LimitMemberCapacity = LimitMemberCapacity()
         self.disallow_quiet_joiners: DisallowQuietJoiners = DisallowQuietJoiners()
         self.disallow_quiet_lurkers: DisallowQuietLurkers = DisallowQuietLurkers()
         self.require_profile_pics: RequireProfilePics = RequireProfilePics()
         self.require_min_account_age: RequireMinimumAccountAge = RequireMinimumAccountAge()
-        self.scheduler: BackgroundScheduler = BackgroundScheduler()
+        self.background_scheduler: BackgroundScheduler = BackgroundScheduler()
         self.users_groups: dict[str, list[str]] = dict()
 
         print("Authenticating")
 
-        self.client: KikClient = KikClient(
+        self.kik_client: KikClient = KikClient(
             self,
             self.authentication.username,
             self.authentication.password,
             enable_console_logging=True
         )
 
-        self.client.wait_for_messages()
-        self.scheduler.start()
-
-    def start_keep_alive(self):
-        if not self.keep_alive_ping.enabled:
-            return
-
-        print("Starting Periodic Ping for Keep Alive")
-
-        self.scheduler.add_job(
-            self.client.send_ping,
-            "interval",
-            minutes=int(self.keep_alive_ping.interval.get()),
-            id=self.keep_alive_ping.id,
+        self.keep_alive_ping: KeepAlivePing = KeepAlivePing(
+            kik_client=self.kik_client,
+            background_scheduler=self.background_scheduler
         )
 
-    def stop_keep_alive(self):
-        if not self.keep_alive_ping.enabled:
-            return
-
-        print("Stopping Periodic Ping for Keep Alive")
-
-        if self.scheduler.get_job(self.keep_alive_ping.id):
-            self.scheduler.remove_job(self.keep_alive_ping.id)
+        self.kik_client.wait_for_messages()
+        self.background_scheduler.start()
 
     def on_authenticated(self):
         print("Authenticated")
-        self.start_keep_alive()
+        self.keep_alive_ping.start()
         print("Requesting Rosters")
-        self.client.request_roster()
+        self.kik_client.request_roster()
 
     def on_pong(self, response: KikPongResponse):
         print("Received Pong")
@@ -94,7 +76,7 @@ class JoyBot(KikClientCallback):
         print("Login Error")
 
         if login_error.is_captcha():
-            login_error.solve_captcha_wizard(self.client)
+            login_error.solve_captcha_wizard(self.kik_client)
 
     def on_connection_failed(self, response: ConnectionFailedResponse):
         print("Connection Failed")
@@ -111,7 +93,7 @@ class JoyBot(KikClientCallback):
 
     def on_disconnected(self):
         print("Disconnected")
-        self.stop_keep_alive()
+        self.keep_alive_ping.stop()
 
     def on_group_status_received(self, response: IncomingGroupStatus):
         print("Group Status Received")
@@ -158,8 +140,8 @@ class JoyBot(KikClientCallback):
         else:
             self.users_groups[response.status_jid] = [response.group_jid]
 
-        self.client.request_info_of_users(response.status_jid)
-        self.client.xiphias_get_users(response.status_jid)
+        self.kik_client.request_info_of_users(response.status_jid)
+        self.kik_client.xiphias_get_users(response.status_jid)
 
     def on_user_gone_from_group(self, response: IncomingGroupStatus):
         print("User Gone")
@@ -196,19 +178,19 @@ class JoyBot(KikClientCallback):
             user_groups = self.users_groups.pop(user.jid)
 
             for group in user_groups:
-                self.client.send_chat_message(
+                self.kik_client.send_chat_message(
                     group,
                     self.require_profile_pics.message.format(joiner=user.display_name)
                 )
 
-                self.scheduler.add_job(
-                    self.client.remove_peer_from_group,
+                self.background_scheduler.add_job(
+                    self.kik_client.remove_peer_from_group,
                     "date",
                     run_date=datetime.now() + timedelta(seconds=5),
                     args=[group, user.jid],
                 )
 
-                print(self.scheduler.get_jobs())
+                print(self.background_scheduler.get_jobs())
 
             return True
 
