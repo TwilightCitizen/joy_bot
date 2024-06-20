@@ -20,7 +20,12 @@ from dotenv import load_dotenv
 # Application Imports
 
 from authentication import Authentication
-from config import KeepAliveTimer, LimitMemberCapacity, DisallowQuietJoiners, DisallowQuietLurkers, RequireProfilePics, RequireMinimumAccountAge
+from keep_alive_ping import KeepAlivePing
+from limit_member_capacity import LimitMemberCapacity
+from disallow_quiet_joiners import DisallowQuietJoiners
+from disallow_quiet_lurkers import DisallowQuietLurkers
+from require_profile_pics import RequireProfilePics
+from require_minimum_account_age import RequireMinimumAccountAge
 
 # Configuration
 
@@ -34,7 +39,7 @@ class JoyBot(KikClientCallback):
         print("Initializing")
 
         self.authentication: Authentication = Authentication()
-        self.keep_alive_timer: KeepAliveTimer = KeepAliveTimer()
+        self.keep_alive_ping: KeepAlivePing = KeepAlivePing()
         self.limit_member_capacity: LimitMemberCapacity = LimitMemberCapacity()
         self.disallow_quiet_joiners: DisallowQuietJoiners = DisallowQuietJoiners()
         self.disallow_quiet_lurkers: DisallowQuietLurkers = DisallowQuietLurkers()
@@ -56,7 +61,7 @@ class JoyBot(KikClientCallback):
         self.scheduler.start()
 
     def start_keep_alive(self):
-        if not self.keep_alive_timer.enabled:
+        if not self.keep_alive_ping.enabled:
             return
 
         print("Starting Periodic Ping for Keep Alive")
@@ -64,18 +69,18 @@ class JoyBot(KikClientCallback):
         self.scheduler.add_job(
             self.client.send_ping,
             "interval",
-            minutes=int(self.keep_alive_timer.interval.get()),
-            id=self.keep_alive_timer.id,
+            minutes=int(self.keep_alive_ping.interval.get()),
+            id=self.keep_alive_ping.id,
         )
 
     def stop_keep_alive(self):
-        if not self.keep_alive_timer.enabled:
+        if not self.keep_alive_ping.enabled:
             return
 
         print("Stopping Periodic Ping for Keep Alive")
 
-        if self.scheduler.get_job(self.keep_alive_timer.id):
-            self.scheduler.remove_job(self.keep_alive_timer.id)
+        if self.scheduler.get_job(self.keep_alive_ping.id):
+            self.scheduler.remove_job(self.keep_alive_ping.id)
 
     def on_authenticated(self):
         print("Authenticated")
