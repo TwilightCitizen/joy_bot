@@ -29,7 +29,7 @@ class KeepAlivePing:
         self.background_scheduler.add_job(
             self.kik_client.send_ping,
             "interval",
-            minutes=int(self.interval.get()),
+            minutes=self.interval.get(),
             id=self.id,
         )
 
