@@ -5,12 +5,11 @@ from typing import Union
 
 from kik_unofficial.client import KikClient
 from kik_unofficial.callbacks import KikClientCallback
-import kik_unofficial.datatypes.xmpp.chatting as chatting
-from kik_unofficial.datatypes.xmpp.chatting import KikPongResponse
+from kik_unofficial.datatypes.xmpp.chatting import KikPongResponse, IncomingGroupStatus, IncomingGroupSysmsg
 from kik_unofficial.datatypes.xmpp.errors import LoginError
 from kik_unofficial.datatypes.xmpp.login import ConnectionFailedResponse, TempBanElement
 from kik_unofficial.datatypes.xmpp.roster import PeersInfoResponse, FetchRosterResponse
-from kik_unofficial.datatypes.xmpp.xiphias import GroupSearchResponse, UsersResponse, UsersByAliasResponse
+from kik_unofficial.datatypes.xmpp.xiphias import UsersResponse, UsersByAliasResponse
 from kik_unofficial.datatypes.peers import User
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -114,7 +113,7 @@ class JoyBot(KikClientCallback):
         print("Disconnected")
         self.stop_keep_alive()
 
-    def on_group_status_received(self, response: chatting.IncomingGroupStatus):
+    def on_group_status_received(self, response: IncomingGroupStatus):
         print("Group Status Received")
         print(response.raw_element.prettify())
 
@@ -131,27 +130,27 @@ class JoyBot(KikClientCallback):
         elif "has promoted" in response.status:
             self.on_user_promoted_in_group(response)
 
-    def on_user_joined_group(self, response: chatting.IncomingGroupStatus):
+    def on_user_joined_group(self, response: IncomingGroupStatus):
         print("User Joined")
         self.on_new_user_in_group(response)
 
-    def on_user_invited_to_group(self, response: chatting.IncomingGroupStatus):
+    def on_user_invited_to_group(self, response: IncomingGroupStatus):
         print("User Invited")
         self.on_new_user_in_group(response)
 
-    def on_user_added_to_group(self, response: chatting.IncomingGroupStatus):
+    def on_user_added_to_group(self, response: IncomingGroupStatus):
         print("User Added")
         self.on_new_user_in_group(response)
 
-    def on_user_removed_from_group(self, response: chatting.IncomingGroupStatus):
+    def on_user_removed_from_group(self, response: IncomingGroupStatus):
         print("User Removed")
         self.on_user_gone_from_group(response)
 
-    def on_user_left_group(self, response: chatting.IncomingGroupStatus):
+    def on_user_left_group(self, response: IncomingGroupStatus):
         print("User Left")
         self.on_user_gone_from_group(response)
 
-    def on_new_user_in_group(self, response: chatting.IncomingGroupStatus):
+    def on_new_user_in_group(self, response: IncomingGroupStatus):
         print("New User")
 
         if response.status_jid in self.users_groups.keys():
@@ -162,10 +161,10 @@ class JoyBot(KikClientCallback):
         self.client.request_info_of_users(response.status_jid)
         self.client.xiphias_get_users(response.status_jid)
 
-    def on_user_gone_from_group(self, response: chatting.IncomingGroupStatus):
+    def on_user_gone_from_group(self, response: IncomingGroupStatus):
         print("User Gone")
 
-    def on_user_promoted_in_group(self, response: chatting.IncomingGroupStatus):
+    def on_user_promoted_in_group(self, response: IncomingGroupStatus):
         print("User Promoted")
 
     def on_roster_received(self, response: FetchRosterResponse):
@@ -231,7 +230,7 @@ class JoyBot(KikClientCallback):
 
         return False
 
-    def on_group_sysmsg_received(self, response: chatting.IncomingGroupSysmsg):
+    def on_group_sysmsg_received(self, response: IncomingGroupSysmsg):
         print("Group System Message Received")
 
         print(response.sysmsg)
