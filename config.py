@@ -1,6 +1,5 @@
 # Library Imports
 
-import os
 from dotenv import load_dotenv
 
 # Application Imports
@@ -14,13 +13,6 @@ load_dotenv()
 # Definitions
 
 
-class Authentication:
-    def __init__(self):
-        self.username: str = "joy_bot_" + os.getenv("BOT_SERIAL")
-        self.password: str = os.getenv("BOT_PASSWORD")
-        self.email: str = os.getenv("BOT_EMAIl")
-
-
 class KeepAliveTimer:
     def __init__(self):
         self.interval: IntRange = IntRange(bottom=1, top=30, default=10)
@@ -28,7 +20,7 @@ class KeepAliveTimer:
         self.id: str = "KEEP_ALIVE_TIMER"
 
 
-class CapMembers:
+class LimitMemberCapacity:
     def __init__(self):
         self.capacity: IntRange = IntRange(bottom=2, top=100, default=98)
         self.enabled: bool = True

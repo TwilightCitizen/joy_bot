@@ -11,6 +11,7 @@ from kik_unofficial.datatypes.xmpp.errors import LoginError
 from kik_unofficial.datatypes.xmpp.login import ConnectionFailedResponse, TempBanElement
 from kik_unofficial.datatypes.xmpp.roster import PeersInfoResponse, FetchRosterResponse
 from kik_unofficial.datatypes.xmpp.xiphias import GroupSearchResponse, UsersResponse, UsersByAliasResponse
+from kik_unofficial.datatypes.peers import User
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -18,7 +19,8 @@ from dotenv import load_dotenv
 
 # Application Imports
 
-from config import Authentication, KeepAliveTimer, CapMembers, DisallowQuietJoiners, DisallowQuietLurkers, RequireProfilePics, RequireMinimumAccountAge
+from authentication import Authentication
+from config import KeepAliveTimer, LimitMemberCapacity, DisallowQuietJoiners, DisallowQuietLurkers, RequireProfilePics, RequireMinimumAccountAge
 
 # Configuration
 
@@ -31,19 +33,19 @@ class JoyBot(KikClientCallback):
     def __init__(self):
         print("Initializing")
 
-        self.authentication = Authentication()
-        self.keep_alive_timer = KeepAliveTimer()
-        self.cap_members = CapMembers()
-        self.disallow_quiet_joiners = DisallowQuietJoiners()
-        self.disallow_quiet_lurkers = DisallowQuietLurkers()
-        self.require_profile_pics = RequireProfilePics()
-        self.require_min_account_age = RequireMinimumAccountAge()
-        self.scheduler = BackgroundScheduler()
-        self.rosters = dict()
+        self.authentication: Authentication = Authentication()
+        self.keep_alive_timer: KeepAliveTimer = KeepAliveTimer()
+        self.limit_member_capacity: LimitMemberCapacity = LimitMemberCapacity()
+        self.disallow_quiet_joiners: DisallowQuietJoiners = DisallowQuietJoiners()
+        self.disallow_quiet_lurkers: DisallowQuietLurkers = DisallowQuietLurkers()
+        self.require_profile_pics: RequireProfilePics = RequireProfilePics()
+        self.require_min_account_age: RequireMinimumAccountAge = RequireMinimumAccountAge()
+        self.scheduler: BackgroundScheduler = BackgroundScheduler()
+        self.users_groups: dict[str, list[str]] = dict()
 
         print("Authenticating")
 
-        self.client = KikClient(
+        self.client: KikClient = KikClient(
             self,
             self.authentication.username,
             self.authentication.password,
@@ -52,7 +54,6 @@ class JoyBot(KikClientCallback):
 
         self.client.wait_for_messages()
         self.scheduler.start()
-        self.start_keep_alive()
 
     def start_keep_alive(self):
         if not self.keep_alive_timer.enabled:
@@ -78,6 +79,7 @@ class JoyBot(KikClientCallback):
 
     def on_authenticated(self):
         print("Authenticated")
+        self.start_keep_alive()
         print("Requesting Rosters")
         self.client.request_roster()
 
@@ -147,10 +149,10 @@ class JoyBot(KikClientCallback):
     def on_new_user_in_group(self, response: chatting.IncomingGroupStatus):
         print("New User")
 
-        if response.status_jid in self.rosters.keys():
-            self.rosters[response.status_jid].append(response.group_jid)
+        if response.status_jid in self.users_groups.keys():
+            self.users_groups[response.status_jid].append(response.group_jid)
         else:
-            self.rosters[response.status_jid] = [response.group_jid]
+            self.users_groups[response.status_jid] = [response.group_jid]
 
         self.client.request_info_of_users(response.status_jid)
         self.client.xiphias_get_users(response.status_jid)
@@ -182,10 +184,12 @@ class JoyBot(KikClientCallback):
                 return
 
     def new_user_account_is_missing_profile_pic(self, response: PeersInfoResponse):
-        user = response.users[0]
+        user: User = response.users[0]
 
-        if user.profile_pic is None and user.jid in self.rosters.keys():
-            user_groups = self.rosters.pop(user.jid)
+        if user.profile_pic is None and user.jid in self.users_groups.keys():
+            print("User Has No Profile Picture")
+
+            user_groups = self.users_groups.pop(user.jid)
 
             for group in user_groups:
                 self.client.send_chat_message(
@@ -194,11 +198,13 @@ class JoyBot(KikClientCallback):
                 )
 
                 self.scheduler.add_job(
-                    self.client.remove_peer_from_group(),
+                    self.client.remove_peer_from_group,
                     "date",
                     run_date=datetime.now() + timedelta(seconds=5),
                     args=[group, user.jid],
                 )
+
+                print(self.scheduler.get_jobs())
 
             return True
 
