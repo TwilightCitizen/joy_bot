@@ -1,9 +1,12 @@
+# Application Imports
+
+from greeting import Greeting
+
+
 # Definitions
 
-class GreetingAdd:
+class GreetingAdd(Greeting):
     def __init__(self):
-        self.enabled = True
-
-        self._greeting: str = (
-            "Welcome, {joiner}, added by {inviter}!"
+        super().__init__(
+            greeting="Welcome, {joiner}, added by {inviter}!"
         )
