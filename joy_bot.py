@@ -20,11 +20,11 @@ from dotenv import load_dotenv
 
 from authentication import Authentication
 from keep_alive_ping import KeepAlivePing
-from limit_member_capacity import LimitMemberCapacity
-from disallow_quiet_joiners import DisallowQuietJoiners
-from disallow_quiet_lurkers import DisallowQuietLurkers
-from require_profile_pics import RequireProfilePics
-from require_minimum_account_age import RequireMinimumAccountAge
+from new_user_checks.limit_member_capacity import LimitMemberCapacity
+from new_user_checks.disallow_quiet_joiners import DisallowQuietJoiners
+from new_user_checks.disallow_quiet_lurkers import DisallowQuietLurkers
+from new_user_checks.require_profile_pics import RequireProfilePics
+from new_user_checks.require_minimum_account_age import RequireMinimumAccountAge
 
 
 # Definitions
