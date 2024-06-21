@@ -11,7 +11,6 @@ from int_range import IntRange
 
 # Definitions
 
-
 class KeepAlivePing:
     def __init__(self, kik_client: KikClient, background_scheduler: BackgroundScheduler):
         self.interval: IntRange = IntRange(bottom=1, top=30, default=10)

@@ -26,8 +26,8 @@ from disallow_quiet_lurkers import DisallowQuietLurkers
 from require_profile_pics import RequireProfilePics
 from require_minimum_account_age import RequireMinimumAccountAge
 
-# Definitions
 
+# Definitions
 
 class JoyBot(KikClientCallback):
     def __init__(self):
