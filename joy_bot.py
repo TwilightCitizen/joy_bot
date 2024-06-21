@@ -26,16 +26,13 @@ from disallow_quiet_lurkers import DisallowQuietLurkers
 from require_profile_pics import RequireProfilePics
 from require_minimum_account_age import RequireMinimumAccountAge
 
-# Configuration
-
-load_dotenv()
-
 # Definitions
 
 
 class JoyBot(KikClientCallback):
     def __init__(self):
         print("Initializing")
+        load_dotenv()
 
         self.authentication: Authentication = Authentication()
         self.limit_member_capacity: LimitMemberCapacity = LimitMemberCapacity()
@@ -46,6 +43,8 @@ class JoyBot(KikClientCallback):
         self.background_scheduler: BackgroundScheduler = BackgroundScheduler()
         self.users_groups: dict[str, list[str]] = dict()
 
+        print("Starting Background Scheduler")
+        self.background_scheduler.start()
         print("Authenticating")
 
         self.kik_client: KikClient = KikClient(
@@ -61,7 +60,6 @@ class JoyBot(KikClientCallback):
         )
 
         self.kik_client.wait_for_messages()
-        self.background_scheduler.start()
 
     def on_authenticated(self):
         print("Authenticated")
@@ -195,7 +193,7 @@ class JoyBot(KikClientCallback):
                     args=[group, user.jid],
                 )
 
-                print(self.background_scheduler.get_jobs())
+                self.background_scheduler.print_jobs()
 
             return True
 
