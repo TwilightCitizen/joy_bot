@@ -4,19 +4,19 @@ from kik_unofficial.client import KikClient
 
 # Application Imports
 
-from farewell import Farewell
+from greeting_or_farewell import GreetingOrFarewell
 
 
 # Definitions
 
-class FarewellLeft(Farewell):
+class FarewellLeft(GreetingOrFarewell):
     def __init__(
         self,
         kik_client: KikClient
     ):
         super().__init__(
             kik_client=kik_client,
-            farewell="Farewell, {left}!"
+            message="Farewell, {left}!"
         )
 
     def farewell_left(
@@ -24,7 +24,7 @@ class FarewellLeft(Farewell):
         group_jid: str,
         left: str | None = None,
     ) -> None:
-        super().farewell(
+        super().greet_or_farewell(
             group_jid,
             left=left
         )

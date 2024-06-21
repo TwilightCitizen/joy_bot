@@ -4,19 +4,19 @@ from kik_unofficial.client import KikClient
 
 # Application Imports
 
-from greeting import Greeting
+from greeting_or_farewell import GreetingOrFarewell
 
 
 # Definitions
 
-class GreetingAdd(Greeting):
+class GreetingAdded(GreetingOrFarewell):
     def __init__(
         self,
         kik_client: KikClient
     ):
         super().__init__(
             kik_client=kik_client,
-            greeting="Welcome, {added}, added by {adder}!"
+            message="Welcome, {added}, added by {adder}!"
         )
 
     def greet_invited(
@@ -25,7 +25,7 @@ class GreetingAdd(Greeting):
             added: str | None = None,
             adder: str | None = None,
     ) -> None:
-        super().greet(
+        super().greet_or_farewell(
             group_jid,
             added=added,
             adder=adder,
