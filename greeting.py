@@ -1,7 +1,6 @@
 # Library Imports
 
 from kik_unofficial.client import KikClient
-from kik_unofficial.datatypes.xmpp.chatting import IncomingGroupStatus
 
 
 # Definitions
