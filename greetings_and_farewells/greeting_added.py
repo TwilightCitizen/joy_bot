@@ -4,7 +4,7 @@ from kik_unofficial.client import KikClient
 
 # Application Imports
 
-from greeting_or_farewell import GreetingOrFarewell
+from greetings_and_farewells.greeting_or_farewell import GreetingOrFarewell
 
 
 # Definitions
