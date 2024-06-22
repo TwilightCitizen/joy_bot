@@ -14,8 +14,6 @@ from kik_unofficial.datatypes.peers import User, Group
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from dotenv import load_dotenv
-
 # Application Imports
 
 from authentication import Authentication
@@ -43,7 +41,6 @@ from greetings_and_farewells.greeting_or_farewell import GreetingOrFarewell
 class JoyBot(KikClientCallback):
     def __init__(self):
         print("Initializing")
-        load_dotenv()
 
         self.authentication: Authentication = Authentication()
 
