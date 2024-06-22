@@ -23,8 +23,7 @@ class KeepAlivePing:
         print("Sent Ping")
 
     def start(self) -> None:
-        if self.background_scheduler.get_job(self.id):
-            return
+        if self.background_scheduler.get_job(self.id): return
 
         print("Starting Keep Alive Ping")
 
