@@ -112,8 +112,7 @@ class JoyBot(KikClientCallback):
         self.keep_alive_ping.stop()
 
     def on_group_status_received(self, response: IncomingGroupStatus):
-        def gof(x: GreetingOrFarewell):
-            return x.greet_or_farewell(response=response)
+        def gof(x: GreetingOrFarewell): return x.greet_or_farewell(response=response)
 
         if any(map(gof, [self.greeting_joined, self.greeting_invited, self.greeting_added])):
             self.on_new_user_in_group(response=response)
