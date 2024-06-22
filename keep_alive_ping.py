@@ -6,7 +6,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 # Application Imports
 
-from int_range import IntRange
+from utilities_and_helpers.int_range import IntRange
 
 
 # Definitions
@@ -36,8 +36,7 @@ class KeepAlivePing:
         )
 
     def stop(self) -> None:
-        if not self.background_scheduler.get_job(job_id=self.id):
-            return
+        if not self.background_scheduler.get_job(job_id=self.id): return
 
         print("Stopping Keep Alive Ping")
         self.background_scheduler.remove_job(job_id=self.id)

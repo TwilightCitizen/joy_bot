@@ -26,8 +26,7 @@ class GreetingOrFarewell:
         self._message = greeting
 
     def greet_or_farewell(self, response: IncomingGroupStatus, **kwargs) -> bool:
-        if self._log_line is not None:
-            print(self._log_line)
+        if self._log_line is not None: print(self._log_line)
 
         self._kik_client.send_chat_message(peer_jid=response.group_jid, message=self._message.format(kwargs))
 

@@ -16,7 +16,7 @@ KICKED2 = " from this group"
 # Definitions
 
 class FarewellKicked(GreetingOrFarewell):
-    def __init__(self, kik_client: KikClient ):
+    def __init__(self, kik_client: KikClient):
         super().__init__(
             kik_client=kik_client,
             message="Farewell, {kicked}.  Thanks, {admin}!",

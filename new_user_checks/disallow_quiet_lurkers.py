@@ -1,6 +1,6 @@
 # Application Imports
 
-from int_range import IntRange
+from utilities_and_helpers.int_range import IntRange
 
 # Definitions
 
