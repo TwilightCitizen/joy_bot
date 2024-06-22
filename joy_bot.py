@@ -138,15 +138,10 @@ class JoyBot(KikClientCallback):
             joined, _ = message.split(JOINED)
             greeting = self.greeting_joined
 
-            print("{joined} Joined".format(
-                joined=joined
-            ))
+            print("{joined} Joined".format(joined=joined))
 
             if greeting.enabled:
-                greeting.greet_or_farewell(
-                    group_jid,
-                    joined=joined
-                )
+                greeting.greet_or_farewell(group_jid, joined=joined)
 
             self.on_new_user_in_group(response)
 
@@ -154,10 +149,7 @@ class JoyBot(KikClientCallback):
             invited, inviter = message.split(INVITED)
             greeting = self.greeting_invited
 
-            print("{invited} Invited by {inviter}".format(
-                invited=invited,
-                inviter=inviter
-            ))
+            print("{invited} Invited by {inviter}".format(invited=invited, inviter=inviter))
 
             if greeting.enabled:
                 greeting.greet_or_farewell(
@@ -172,17 +164,10 @@ class JoyBot(KikClientCallback):
             added, adder = message.split(ADDED)
             greeting = self.greeting_invited
 
-            print("{added} Added by {adder}".format(
-                added=added,
-                adder=adder
-            ))
+            print("{added} Added by {adder}".format(added=added, adder=adder))
 
             if greeting.enabled:
-                greeting.greet_or_farewell(
-                    group_jid,
-                    added=added,
-                    adder=adder
-                )
+                greeting.greet_or_farewell(group_jid, added=added, adder=adder)
 
             self.on_new_user_in_group(response)
 
@@ -190,81 +175,48 @@ class JoyBot(KikClientCallback):
             left, _ = message.split(LEFT)
             farewell = self.farewell_left
 
-            print("{left} Left".format(
-                left=left
-            ))
+            print("{left} Left".format(left=left))
 
             if farewell.enabled:
-                farewell.greet_or_farewell(
-                    group_jid,
-                    left=left
-                )
+                farewell.greet_or_farewell(group_jid, left=left)
 
         elif KICKED1 in message and KICKED2 in message:
             admin, rest = message.split(KICKED1)
             kicked, _ = rest.split(KICKED2)
             farewell = self.farewell_kicked
 
-            print("{kicked} Kicked by {admin}".format(
-                kicked=kicked,
-                admin=admin
-            ))
+            print("{kicked} Kicked by {admin}".format(kicked=kicked, admin=admin))
 
             if farewell.enabled:
-                farewell.greet_or_farewell(
-                    group_jid,
-                    kicked=kicked,
-                    admin=admin
-                )
+                farewell.greet_or_farewell(group_jid, kicked=kicked, admin=admin)
 
         elif BANNED in message:
             admin, banned = message.split(BANNED)
             farewell = self.farewell_banned
 
-            print("{banned} Banned by {admin}".format(
-                banned=banned,
-                admin=admin
-            ))
+            print("{banned} Banned by {admin}".format(banned=banned, admin=admin))
 
             if farewell.enabled:
-                farewell.greet_or_farewell(
-                    group_jid,
-                    banned=banned,
-                    admin=admin
-                )
+                farewell.greet_or_farewell(group_jid, banned=banned, admin=admin)
 
         elif PROMOTED1 in message and PROMOTED2 in message:
             admin, rest = message.split(PROMOTED1)
             promoted, _ = rest.split(PROMOTED2)
             greeting = self.greeting_promoted
 
-            print("{promoted} Promoted by {admin}".format(
-                promoted=promoted,
-                admin=admin
-            ))
+            print("{promoted} Promoted by {admin}".format( promoted=promoted, admin=admin))
 
             if greeting.enabled:
-                greeting.greet_or_farewell(
-                    group_jid,
-                    promoted=promoted,
-                    admin=admin
-                )
+                greeting.greet_or_farewell(group_jid, promoted=promoted, admin=admin)
 
         elif DEMOTED in message:
             owner, demoted = message.split(DEMOTED)
             farewell = self.farewell_demoted
 
-            print("{demoted} Demoted by {owner}".format(
-                demoted=demoted,
-                owner=owner
-            ))
+            print("{demoted} Demoted by {owner}".format(demoted=demoted, owner=owner))
 
             if farewell.enabled:
-                farewell.greet_or_farewell(
-                    group_jid,
-                    demoted=demoted,
-                    owner=owner
-                )
+                farewell.greet_or_farewell(group_jid, demoted=demoted, owner=owner)
 
         else:
             print("Other Incoming Group Status Received")
