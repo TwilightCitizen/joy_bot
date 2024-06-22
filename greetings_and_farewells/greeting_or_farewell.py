@@ -6,7 +6,7 @@ from kik_unofficial.client import KikClient
 # Definitions
 
 class GreetingOrFarewell:
-    def __init__(self, message: str, kik_client: KikClient ):
+    def __init__(self, message: str, kik_client: KikClient):
         self.enabled = True
         self._message: str = message
         self._kik_client: KikClient = kik_client
