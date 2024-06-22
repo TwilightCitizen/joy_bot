@@ -29,15 +29,15 @@ class KeepAlivePing:
         print("Starting Keep Alive Ping")
 
         self.background_scheduler.add_job(
-            self._send_keep_alive_ping,
-            "interval",
+            func=self._send_keep_alive_ping,
+            trigger="interval",
             minutes=self.interval.get(),
             id=self.id,
         )
 
     def stop(self) -> None:
-        if not self.background_scheduler.get_job(self.id):
+        if not self.background_scheduler.get_job(job_id=self.id):
             return
 
         print("Stopping Keep Alive Ping")
-        self.background_scheduler.remove_job(self.id)
+        self.background_scheduler.remove_job(job_id=self.id)
