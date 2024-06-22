@@ -16,7 +16,7 @@ class FarewellDemoted(GreetingOrFarewell):
     ):
         super().__init__(
             kik_client=kik_client,
-            message="Aw...  Sorry, {demoted}, but it's {owners}'s group!"
+            message="Aw...  Sorry, {demoted}, but it's {owner}'s group!"
         )
 
     def farewell_demoted(
