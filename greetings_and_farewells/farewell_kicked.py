@@ -23,12 +23,10 @@ class FarewellKicked(GreetingOrFarewell):
             log_line="{kicked} Kicked by {admin}"
         )
 
-    @staticmethod
-    def can_dispatch(response: IncomingGroupStatus):
-        return KICKED1 in response.status and KICKED2 in response.status
+    def farewell_kicked(self, response: IncomingGroupStatus) -> bool:
+        if not (KICKED1 in response.status and KICKED2 in response.status): return False
 
-    def farewell_kicked(self, response: IncomingGroupStatus) -> None:
         admin, rest = response.status.split(KICKED1)
         kicked, _ = rest.split(KICKED2)
 
-        super().greet_or_farewell(response=response, kicked=kicked, admin=admin)
+        return super().greet_or_farewell(response=response, kicked=kicked, admin=admin)

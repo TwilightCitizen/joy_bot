@@ -116,25 +116,15 @@ class JoyBot(KikClientCallback):
         self.keep_alive_ping.stop()
 
     def on_group_status_received(self, response: IncomingGroupStatus):
-        message = response.status
+        def gof(x: GreetingOrFarewell):
+            return x.greet_or_farewell(response=response)
 
-        if GreetingJoined.can_dispatch(response=response):
-            self.greeting_joined.greet_or_farewell(response=response)
-        elif GreetingInvited.can_dispatch(response=response):
-            self.greeting_invited.greet_or_farewell(response=response)
-        elif GreetingAdded.can_dispatch(response=response):
-            self.greeting_added.greet_or_farewell(response=response)
-        elif FarewellLeft.can_dispatch(response=response):
-            self.farewell_left.greet_or_farewell(response=response)
-        elif FarewellKicked.can_dispatch(response=response):
-            self.farewell_banned.greet_or_farewell(response=response)
-        elif FarewellBanned.can_dispatch(response=response):
-            self.farewell_demoted.greet_or_farewell(response=response)
-        elif GreetingPromoted.can_dispatch(response=response):
-            self.greeting_promoted.greet_or_farewell(response=response)
-        elif FarewellDemoted.can_dispatch(response=response):
-            self.farewell_demoted.greet_or_farewell(response=response)
-        else:
+        if any(map(gof, [self.greeting_joined, self.greeting_invited, self.greeting_added])):
+            self.on_new_user_in_group(response=response)
+        elif not any(map(gof, [
+            self.farewell_left, self.farewell_kicked, self.farewell_banned,
+            self.greeting_promoted, self.farewell_demoted
+        ])):
             print("Other Incoming Group Status Received")
             print(response.raw_element.prettify())
 

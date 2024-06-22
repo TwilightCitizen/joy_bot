@@ -22,11 +22,9 @@ class GreetingInvited(GreetingOrFarewell):
             log_line="{invited} Invited by {inviter}"
         )
 
-    @staticmethod
-    def can_dispatch(response: IncomingGroupStatus):
-        return INVITED in response.status
+    def greet_invited(self, response: IncomingGroupStatus) -> bool:
+        if INVITED not in response.status: return False
 
-    def greet_invited(self, response: IncomingGroupStatus) -> None:
         invited, inviter = response.status.split(INVITED)
 
-        super().greet_or_farewell(response=response, invited=invited, inviter=inviter)
+        return super().greet_or_farewell(response=response, invited=invited, inviter=inviter)

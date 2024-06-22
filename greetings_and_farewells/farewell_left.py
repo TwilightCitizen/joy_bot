@@ -22,11 +22,9 @@ class FarewellLeft(GreetingOrFarewell):
             log_line="{left} Left"
         )
 
-    @staticmethod
-    def can_dispatch(response: IncomingGroupStatus):
-        return LEFT in response.status
+    def farewell_left(self, response: IncomingGroupStatus) -> bool:
+        if LEFT not in response.status: return False
 
-    def farewell_left(self, response: IncomingGroupStatus) -> None:
         left, _ = response.status.split(LEFT)
 
-        super().greet_or_farewell(response=response, left=left)
+        return super().greet_or_farewell(response=response, left=left)

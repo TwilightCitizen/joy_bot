@@ -22,11 +22,9 @@ class GreetingJoined(GreetingOrFarewell):
             log_line="{joined} Joined"
         )
 
-    @staticmethod
-    def can_dispatch(response: IncomingGroupStatus):
-        return JOINED in response.status
+    def greet_joined(self, response: IncomingGroupStatus) -> bool:
+        if JOINED not in response.status: return False
 
-    def greet_joined(self, response: IncomingGroupStatus) -> None:
         joined, _ = response.status.split(JOINED)
 
-        super().greet_or_farewell(response=response, joined=joined)
+        return super().greet_or_farewell(response=response, joined=joined)

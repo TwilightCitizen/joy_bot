@@ -22,11 +22,9 @@ class FarewellBanned(GreetingOrFarewell):
             log_line="{banned} Banned by {admin}"
         )
 
-    @staticmethod
-    def can_dispatch(response: IncomingGroupStatus):
-        return BANNED in response.status
+    def farewell_banned(self, response: IncomingGroupStatus) -> bool:
+        if BANNED not in response.status: return False
 
-    def farewell_banned(self, response: IncomingGroupStatus) -> None:
         admin, banned = response.status.split(BANNED)
 
-        super().greet_or_farewell(response=response, banned=banned, admin=admin)
+        return super().greet_or_farewell(response=response, banned=banned, admin=admin)

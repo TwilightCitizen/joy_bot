@@ -22,11 +22,9 @@ class FarewellDemoted(GreetingOrFarewell):
             log_line="{demoted} Demoted by {owner}"
         )
 
-    @staticmethod
-    def can_dispatch(response: IncomingGroupStatus):
-        return DEMOTED in response.status
+    def farewell_demoted(self, response: IncomingGroupStatus) -> bool:
+        if DEMOTED not in response.status: return False
 
-    def farewell_demoted(self, response: IncomingGroupStatus) -> None:
         owner, demoted = response.status.split(DEMOTED)
 
-        super().greet_or_farewell(response=response, demoted=demoted, owner=owner)
+        return super().greet_or_farewell(response=response, demoted=demoted, owner=owner)

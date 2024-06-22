@@ -22,11 +22,9 @@ class GreetingAdded(GreetingOrFarewell):
             log_line="{added} Added by {adder}"
         )
 
-    @staticmethod
-    def can_dispatch(response: IncomingGroupStatus):
-        return ADDED in response.status
+    def greet_added(self, response: IncomingGroupStatus) -> bool:
+        if ADDED not in response.status: return False
 
-    def greet_added(self, response: IncomingGroupStatus) -> None:
         added, adder = response.status.split(ADDED)
 
-        super().greet_or_farewell(response=response, added=added, adder=adder)
+        return super().greet_or_farewell(response=response, added=added, adder=adder)
