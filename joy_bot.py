@@ -76,9 +76,9 @@ class JoyBot(KikClientCallback):
         print("Authenticating")
 
         self.kik_client: KikClient = KikClient(
-            self,
-            self.authentication.username,
-            self.authentication.password,
+            callback=self,
+            kik_username=self.authentication.username,
+            kik_password=self.authentication.password,
             enable_console_logging=True
         )
 
@@ -87,14 +87,14 @@ class JoyBot(KikClientCallback):
             background_scheduler=self.background_scheduler
         )
 
-        self.greeting_joined: GreetingJoined = GreetingJoined(self.kik_client)
-        self.greeting_invited: GreetingInvited = GreetingInvited(self.kik_client)
-        self.greeting_added: GreetingAdded = GreetingAdded(self.kik_client)
-        self.greeting_promoted: GreetingPromoted = GreetingPromoted(self.kik_client)
-        self.farewell_left: FarewellLeft = FarewellLeft(self.kik_client)
-        self.farewell_kicked: FarewellKicked = FarewellKicked(self.kik_client)
-        self.farewell_banned: FarewellBanned = FarewellBanned(self.kik_client)
-        self.farewell_demoted: FarewellDemoted = FarewellDemoted(self.kik_client)
+        self.greeting_joined: GreetingJoined = GreetingJoined(kik_client=self.kik_client)
+        self.greeting_invited: GreetingInvited = GreetingInvited(kik_client=self.kik_client)
+        self.greeting_added: GreetingAdded = GreetingAdded(kik_client=self.kik_client)
+        self.greeting_promoted: GreetingPromoted = GreetingPromoted(kik_client=self.kik_client)
+        self.farewell_left: FarewellLeft = FarewellLeft(kik_client=self.kik_client)
+        self.farewell_kicked: FarewellKicked = FarewellKicked(kik_client=self.kik_client)
+        self.farewell_banned: FarewellBanned = FarewellBanned(kik_client=self.kik_client)
+        self.farewell_demoted: FarewellDemoted = FarewellDemoted(kik_client=self.kik_client)
 
         self.kik_client.wait_for_messages()
 
@@ -111,7 +111,7 @@ class JoyBot(KikClientCallback):
         print("Login Error")
 
         if login_error.is_captcha():
-            login_error.solve_captcha_wizard(self.kik_client)
+            login_error.solve_captcha_wizard(kik_client=self.kik_client)
 
     def on_connection_failed(self, response: ConnectionFailedResponse):
         print("Connection Failed")
@@ -245,7 +245,7 @@ class JoyBot(KikClientCallback):
         print(response.raw_element.prettify())
 
         if self.require_profile_pics.enabled:
-            if self.new_user_account_is_missing_profile_pic(response):
+            if self.new_user_account_is_missing_profile_pic(response=response):
                 return
 
     def on_xiphias_get_users_response(self, response: Union[UsersResponse, UsersByAliasResponse]):
@@ -253,7 +253,7 @@ class JoyBot(KikClientCallback):
         print(response.raw_element.prettify())
 
         if self.require_min_account_age.enabled:
-            if self.new_user_account_age_is_less_than_minimum_days(response):
+            if self.new_user_account_age_is_less_than_minimum_days(response=response):
                 return
 
     def new_user_account_is_missing_profile_pic(self, response: PeersInfoResponse):
@@ -271,8 +271,8 @@ class JoyBot(KikClientCallback):
                 )
 
                 self.background_scheduler.add_job(
-                    self.kik_client.remove_peer_from_group,
-                    "date",
+                    func=self.kik_client.remove_peer_from_group,
+                    trigger="date",
                     run_date=datetime.now() + timedelta(seconds=5),
                     args=[group, user.jid],
                 )
@@ -303,6 +303,7 @@ class JoyBot(KikClientCallback):
         print("Group System Message Received")
 
         print(response.sysmsg)
+
 
 # Execution
 
