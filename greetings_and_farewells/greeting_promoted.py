@@ -16,7 +16,7 @@ class GreetingPromoted(GreetingOrFarewell):
     ):
         super().__init__(
             kik_client=kik_client,
-            message="Congrats, {demoted}...  {admin} must like you!"
+            message="Congrats, {promoted}...  {admin} must like you!"
         )
 
     def greet_promoted(
