@@ -99,8 +99,7 @@ class JoyBot(KikClientCallback):
         print("Connection Failed")
         print(response.message)
 
-        if response.is_backoff:
-            print("Backoff Seconds:", response.backoff_seconds)
+        if response.is_backoff: print("Backoff Seconds:", response.backoff_seconds)
 
     def on_temp_ban_received(self, response: TempBanElement):
         print("Temporary Ban Received")
@@ -140,24 +139,21 @@ class JoyBot(KikClientCallback):
 
         groups: list[Group] = [elem for elem in response.peers if isinstance(elem, Group)]
 
-        for group in groups:
-            print(group.name)
+        for group in groups: print(group.name)
 
     def on_peer_info_received(self, response: PeersInfoResponse):
         print("Peer Info Received")
         print(response.raw_element.prettify())
 
         if self.require_profile_pics.enabled:
-            if self.new_user_account_is_missing_profile_pic(response=response):
-                return
+            if self.new_user_account_is_missing_profile_pic(response=response): return
 
     def on_xiphias_get_users_response(self, response: Union[UsersResponse, UsersByAliasResponse]):
         print("Xiphias Info Received")
         print(response.raw_element.prettify())
 
         if self.require_min_account_age.enabled:
-            if self.new_user_account_age_is_less_than_minimum_days(response=response):
-                return
+            if self.new_user_account_age_is_less_than_minimum_days(response=response): return
 
     def new_user_account_is_missing_profile_pic(self, response: PeersInfoResponse):
         user: User = response.users[0]
