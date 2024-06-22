@@ -135,7 +135,7 @@ class JoyBot(KikClientCallback):
         group_jid = response.group_jid
 
         if JOINED in message:
-            joined = message.split(JOINED)
+            joined, _ = message.split(JOINED)
             greeting = self.greeting_joined
 
             print("{joined} Joined".format(
@@ -187,7 +187,7 @@ class JoyBot(KikClientCallback):
             self.on_new_user_in_group(response)
 
         elif LEFT in message:
-            left = message.split(LEFT)
+            left, _ = message.split(LEFT)
             farewell = self.farewell_left
 
             print("{left} Left".format(
@@ -202,7 +202,7 @@ class JoyBot(KikClientCallback):
 
         elif KICKED1 in message and KICKED2 in message:
             admin, rest = message.split(KICKED1)
-            kicked, rest = rest.split(KICKED2)
+            kicked, _ = rest.split(KICKED2)
             farewell = self.farewell_kicked
 
             print("{kicked} Kicked by {admin}".format(
@@ -235,7 +235,7 @@ class JoyBot(KikClientCallback):
 
         elif PROMOTED1 in message and PROMOTED2 in message:
             admin, rest = message.split(PROMOTED1)
-            promoted, rest = rest.split(PROMOTED2)
+            promoted, _ = rest.split(PROMOTED2)
             greeting = self.greeting_promoted
 
             print("{promoted} Promoted by {admin}".format(

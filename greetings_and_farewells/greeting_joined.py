@@ -16,7 +16,7 @@ class GreetingJoined(GreetingOrFarewell):
     ):
         super().__init__(
             kik_client=kik_client,
-            message="Welcome, {joiner}!"
+            message="Welcome, {joined}!"
         )
 
     def greet_joined(
