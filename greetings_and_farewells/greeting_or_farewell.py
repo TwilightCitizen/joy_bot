@@ -23,35 +23,5 @@ class GreetingOrFarewell:
     def set_greeting(self, greeting: str) -> None:
         self._message = greeting
 
-    def greet_or_farewell(
-        self, group_jid: str,
-        joined: str | None = None,
-        invited: str | None = None,
-        inviter: str | None = None,
-        added: str | None = None,
-        adder: str | None = None,
-        left: str | None = None,
-        kicked: str | None = None,
-        banned: str | None = None,
-        demoted: str | None = None,
-        promoted: str | None = None,
-        admin: str | None = None,
-        owner: str | None = None,
-    ) -> None:
-        self._kik_client.send_chat_message(
-            group_jid,
-            self._message.format(
-                joined=joined,
-                invited=invited,
-                inviter=inviter,
-                added=added,
-                adder=adder,
-                left=left,
-                kicked=kicked,
-                banned=banned,
-                demoted=demoted,
-                promoted=promoted,
-                admin=admin,
-                owner=owner
-            )
-        )
+    def greet_or_farewell(self, group_jid: str, **kwargs) -> None:
+        self._kik_client.send_chat_message(group_jid, self._message.format(kwargs))
