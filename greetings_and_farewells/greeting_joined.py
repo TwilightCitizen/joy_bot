@@ -14,4 +14,4 @@ class GreetingJoined(GreetingOrFarewell):
         super().__init__(kik_client=kik_client, message="Welcome, {joined}!")
 
     def greet_joined(self, group_jid: str, joined: str | None = None ) -> None:
-        super().greet_or_farewell(group_jid, joined=joined)
+        super().greet_or_farewell(group_jid=group_jid, joined=joined)

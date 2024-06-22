@@ -14,4 +14,4 @@ class FarewellDemoted(GreetingOrFarewell):
         super().__init__(kik_client=kik_client, message="Aw...  Sorry, {demoted}, but it's {owner}'s group!")
 
     def farewell_demoted(self, group_jid: str, demoted: str | None = None, owner: str | None = None) -> None:
-        super().greet_or_farewell(group_jid, demoted=demoted, owner=owner)
+        super().greet_or_farewell(group_jid=group_jid, demoted=demoted, owner=owner)

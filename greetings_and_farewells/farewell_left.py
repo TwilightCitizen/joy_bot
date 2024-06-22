@@ -14,4 +14,4 @@ class FarewellLeft(GreetingOrFarewell):
         super().__init__(kik_client=kik_client, message="Farewell, {left}!")
 
     def farewell_left(self, group_jid: str, left: str | None = None) -> None:
-        super().greet_or_farewell(group_jid,left=left)
+        super().greet_or_farewell(group_jid=group_jid, left=left)

@@ -24,4 +24,4 @@ class GreetingOrFarewell:
         self._message = greeting
 
     def greet_or_farewell(self, group_jid: str, **kwargs) -> None:
-        self._kik_client.send_chat_message(group_jid, self._message.format(kwargs))
+        self._kik_client.send_chat_message(peer_jid=group_jid, message=self._message.format(kwargs))

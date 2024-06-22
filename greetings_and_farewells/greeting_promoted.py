@@ -14,4 +14,4 @@ class GreetingPromoted(GreetingOrFarewell):
         super().__init__(kik_client=kik_client, message="Congrats, {promoted}...  {admin} must like you!")
 
     def greet_promoted(self, group_jid: str, promoted: str | None = None, admin: str | None = None) -> None:
-        super().greet_or_farewell(group_jid, promoted=promoted, admin=admin)
+        super().greet_or_farewell(group_jid=group_jid, promoted=promoted, admin=admin)
