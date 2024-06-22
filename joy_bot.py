@@ -35,7 +35,22 @@ from greetings_and_farewells.farewell_left import FarewellLeft
 from greetings_and_farewells.farewell_kicked import FarewellKicked
 from greetings_and_farewells.farewell_banned import FarewellBanned
 from greetings_and_farewells.farewell_demoted import FarewellDemoted
-from greetings_and_farewells.greeter_and_fareweller import GreeterAndFareweller
+
+# Constants
+
+JOINED = " has joined the chat"
+INVITED = " has been invited to the group by "
+ADDED = " was added to the group by "
+
+LEFT = " has left the chat"
+KICKED1 = " has removed "
+KICKED2 = " from this group"
+BANNED = " has banned "
+UNBANNED = " has unbanned "
+
+PROMOTED1 = " has promoted "
+PROMOTED2 = " to admin"
+DEMOTED = " has removed admin status from "
 
 
 # Definitions
@@ -80,7 +95,6 @@ class JoyBot(KikClientCallback):
         self.farewell_kicked: FarewellKicked = FarewellKicked(self.kik_client)
         self.farewell_banned: FarewellBanned = FarewellBanned(self.kik_client)
         self.farewell_demoted: FarewellDemoted = FarewellDemoted(self.kik_client)
-        self.greeter_and_fareweller: GreeterAndFareweller = GreeterAndFareweller(self)
 
         self.kik_client.wait_for_messages()
 
@@ -117,7 +131,144 @@ class JoyBot(KikClientCallback):
         self.keep_alive_ping.stop()
 
     def on_group_status_received(self, response: IncomingGroupStatus):
-        self.greeter_and_fareweller.dispatch_greeting_or_farewell(response)
+        message = response.status
+        group_jid = response.group_jid
+
+        if JOINED in message:
+            joined = message.split(JOINED)
+            greeting = self.greeting_joined
+
+            print("{joined} Joined".format(
+                joined=joined
+            ))
+
+            if greeting.enabled:
+                greeting.greet_or_farewell(
+                    group_jid,
+                    joined=joined
+                )
+
+            self.on_new_user_in_group(response)
+
+        elif INVITED in message:
+            invited, inviter = message.split(INVITED)
+            greeting = self.greeting_invited
+
+            print("{invited} Invited by {inviter}".format(
+                invited=invited,
+                inviter=inviter
+            ))
+
+            if greeting.enabled:
+                greeting.greet_or_farewell(
+                    group_jid,
+                    invited=invited,
+                    inviter=inviter
+                )
+
+            self.on_new_user_in_group(response)
+
+        elif ADDED in message:
+            added, adder = message.split(ADDED)
+            greeting = self.greeting_invited
+
+            print("{added} Added by {adder}".format(
+                added=added,
+                adder=adder
+            ))
+
+            if greeting.enabled:
+                greeting.greet_or_farewell(
+                    group_jid,
+                    added=added,
+                    adder=adder
+                )
+
+            self.on_new_user_in_group(response)
+
+        elif LEFT in message:
+            left = message.split(LEFT)
+            farewell = self.farewell_left
+
+            print("{left} Left".format(
+                left=left
+            ))
+
+            if farewell.enabled:
+                farewell.greet_or_farewell(
+                    group_jid,
+                    left=left
+                )
+
+        elif KICKED1 in message and KICKED2 in message:
+            admin, rest = message.split(KICKED1)
+            kicked = rest.split(KICKED2)
+            farewell = self.farewell_kicked
+
+            print("{kicked} Kicked by {admin}".format(
+                kicked=kicked,
+                admin=admin
+            ))
+
+            if farewell.enabled:
+                farewell.greet_or_farewell(
+                    group_jid,
+                    kicked=kicked,
+                    admin=admin
+                )
+
+        elif BANNED in message:
+            admin, banned = message.split(BANNED)
+            farewell = self.farewell_banned
+
+            print("{banned} Banned by {admin}".format(
+                banned=banned,
+                admin=admin
+            ))
+
+            if farewell.enabled:
+                farewell.greet_or_farewell(
+                    group_jid,
+                    banned=banned,
+                    admin=admin
+                )
+
+        elif PROMOTED1 in message and PROMOTED2 in message:
+            admin, rest = message.split(PROMOTED1)
+            promoted = rest.split(PROMOTED2)
+            greeting = self.greeting_promoted
+
+            print("{promoted} Promoted by {admin}".format(
+                promoted=promoted,
+                admin=admin
+            ))
+
+            if greeting.enabled:
+                greeting.greet_or_farewell(
+                    group_jid,
+                    promoted=promoted,
+                    admin=admin
+                )
+
+        elif DEMOTED in message:
+            owner, demoted = message.split(DEMOTED)
+            farewell = self.farewell_demoted
+
+            print("{demoted} Demoted by {owner}".format(
+                demoted=demoted,
+                owner=owner
+            ))
+
+            if farewell.enabled:
+                farewell.greet_or_farewell(
+                    group_jid,
+                    demoted=demoted,
+                    owner=owner
+                )
+
+        else:
+            print("Other Incoming Group Status Received")
+            print(response.raw_element.prettify())
 
     def on_new_user_in_group(self, response: IncomingGroupStatus):
         if response.status_jid in self.users_groups.keys():
