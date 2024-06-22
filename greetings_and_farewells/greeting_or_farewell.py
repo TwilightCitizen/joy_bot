@@ -38,7 +38,10 @@ class GreetingOrFarewell:
         left: str | None = None,
         kicked: str | None = None,
         banned: str | None = None,
-        admin: str | None = None
+        demoted: str | None = None,
+        promoted: str | None = None,
+        admin: str | None = None,
+        owner: str | None = None,
     ) -> None:
         self._kik_client.send_chat_message(
             group_jid,
@@ -51,6 +54,9 @@ class GreetingOrFarewell:
                 left=left,
                 kicked=kicked,
                 banned=banned,
-                admin=admin
+                demoted=demoted,
+                promoted=promoted,
+                admin=admin,
+                owner=owner
             )
         )
