@@ -4,7 +4,7 @@ class IntRange:
             raise ValueError("Bottom must be less than or equal to top.")
 
         if default < bottom or default > top:
-            raise ValueError("Default must be between bottom and top.")
+            raise ValueError("Default must be between bottom and top inclusive.")
 
         self._bottom: int = bottom
         self._top: int = top
@@ -15,6 +15,6 @@ class IntRange:
 
     def set(self, value: int):
         if value < self._bottom or value > self._top:
-            raise ValueError("Value must be between bottom and top.")
+            raise ValueError("Value must be between bottom and top inclusive.")
 
         self._value = value
