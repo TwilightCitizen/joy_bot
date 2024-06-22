@@ -20,11 +20,22 @@ from dotenv import load_dotenv
 
 from authentication import Authentication
 from keep_alive_ping import KeepAlivePing
+
 from new_user_checks.limit_member_capacity import LimitMemberCapacity
 from new_user_checks.disallow_quiet_joiners import DisallowQuietJoiners
 from new_user_checks.disallow_quiet_lurkers import DisallowQuietLurkers
 from new_user_checks.require_profile_pics import RequireProfilePics
 from new_user_checks.require_minimum_account_age import RequireMinimumAccountAge
+
+from greetings_and_farewells.greeting_joined import GreetingJoined
+from greetings_and_farewells.greeting_invited import GreetingInvited
+from greetings_and_farewells.greeting_added import GreetingAdded
+from greetings_and_farewells.greeting_promoted import GreetingPromoted
+from greetings_and_farewells.farewell_left import FarewellLeft
+from greetings_and_farewells.farewell_kicked import FarewellKicked
+from greetings_and_farewells.farewell_banned import FarewellBanned
+from greetings_and_farewells.farewell_demoted import FarewellDemoted
+from greetings_and_farewells.greeter_and_fareweller import GreeterAndFareweller
 
 
 # Definitions
@@ -35,11 +46,13 @@ class JoyBot(KikClientCallback):
         load_dotenv()
 
         self.authentication: Authentication = Authentication()
+
         self.limit_member_capacity: LimitMemberCapacity = LimitMemberCapacity()
         self.disallow_quiet_joiners: DisallowQuietJoiners = DisallowQuietJoiners()
         self.disallow_quiet_lurkers: DisallowQuietLurkers = DisallowQuietLurkers()
         self.require_profile_pics: RequireProfilePics = RequireProfilePics()
         self.require_min_account_age: RequireMinimumAccountAge = RequireMinimumAccountAge()
+
         self.background_scheduler: BackgroundScheduler = BackgroundScheduler()
         self.users_groups: dict[str, list[str]] = dict()
 
@@ -58,6 +71,16 @@ class JoyBot(KikClientCallback):
             kik_client=self.kik_client,
             background_scheduler=self.background_scheduler
         )
+
+        self.greeting_joined: GreetingJoined = GreetingJoined(self.kik_client)
+        self.greeting_invited: GreetingInvited = GreetingInvited(self.kik_client)
+        self.greeting_added: GreetingAdded = GreetingAdded(self.kik_client)
+        self.greeting_promoted: GreetingPromoted = GreetingPromoted(self.kik_client)
+        self.farewell_left: FarewellLeft = FarewellLeft(self.kik_client)
+        self.farewell_kicked: FarewellKicked = FarewellKicked(self.kik_client)
+        self.farewell_banned: FarewellBanned = FarewellBanned(self.kik_client)
+        self.farewell_demoted: FarewellDemoted = FarewellDemoted(self.kik_client)
+        self.greeter_and_fareweller: GreeterAndFareweller = GreeterAndFareweller(self)
 
         self.kik_client.wait_for_messages()
 
@@ -94,45 +117,9 @@ class JoyBot(KikClientCallback):
         self.keep_alive_ping.stop()
 
     def on_group_status_received(self, response: IncomingGroupStatus):
-        print("Group Status Received")
-        print(response.raw_element.prettify())
-
-        if "has joined the chat" in response.status:
-            self.on_user_joined_group(response)
-        elif "has been invited to the group by" in response.status:
-            self.on_user_invited_to_group(response)
-        elif "was added to the group by" in response.status:
-            self.on_user_added_to_group(response)
-        elif "has left the chat" in response.status:
-            self.on_user_left_group(response)
-        elif "have removed" in response.status or "has removed" in response.status:
-            self.on_user_removed_from_group(response)
-        elif "has promoted" in response.status:
-            self.on_user_promoted_in_group(response)
-
-    def on_user_joined_group(self, response: IncomingGroupStatus):
-        print("User Joined")
-        self.on_new_user_in_group(response)
-
-    def on_user_invited_to_group(self, response: IncomingGroupStatus):
-        print("User Invited")
-        self.on_new_user_in_group(response)
-
-    def on_user_added_to_group(self, response: IncomingGroupStatus):
-        print("User Added")
-        self.on_new_user_in_group(response)
-
-    def on_user_removed_from_group(self, response: IncomingGroupStatus):
-        print("User Removed")
-        self.on_user_gone_from_group(response)
-
-    def on_user_left_group(self, response: IncomingGroupStatus):
-        print("User Left")
-        self.on_user_gone_from_group(response)
+        self.greeter_and_fareweller.dispatch_greeting_or_farewell(response)
 
     def on_new_user_in_group(self, response: IncomingGroupStatus):
-        print("New User")
-
         if response.status_jid in self.users_groups.keys():
             self.users_groups[response.status_jid].append(response.group_jid)
         else:
@@ -140,12 +127,6 @@ class JoyBot(KikClientCallback):
 
         self.kik_client.request_info_of_users(response.status_jid)
         self.kik_client.xiphias_get_users(response.status_jid)
-
-    def on_user_gone_from_group(self, response: IncomingGroupStatus):
-        print("User Gone")
-
-    def on_user_promoted_in_group(self, response: IncomingGroupStatus):
-        print("User Promoted")
 
     def on_roster_received(self, response: FetchRosterResponse):
         print("Rosters Received")
