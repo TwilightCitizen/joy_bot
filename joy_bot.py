@@ -202,7 +202,7 @@ class JoyBot(KikClientCallback):
 
         elif KICKED1 in message and KICKED2 in message:
             admin, rest = message.split(KICKED1)
-            kicked = rest.split(KICKED2)
+            kicked, rest = rest.split(KICKED2)
             farewell = self.farewell_kicked
 
             print("{kicked} Kicked by {admin}".format(
@@ -235,7 +235,7 @@ class JoyBot(KikClientCallback):
 
         elif PROMOTED1 in message and PROMOTED2 in message:
             admin, rest = message.split(PROMOTED1)
-            promoted = rest.split(PROMOTED2)
+            promoted, rest = rest.split(PROMOTED2)
             greeting = self.greeting_promoted
 
             print("{promoted} Promoted by {admin}".format(
