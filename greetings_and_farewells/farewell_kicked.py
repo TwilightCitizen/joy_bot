@@ -23,10 +23,10 @@ class FarewellKicked(GreetingOrFarewell):
             log_line="{kicked} Kicked by {admin}"
         )
 
-    def greet_or_farewell(self, response: IncomingGroupStatus, **kwargs) -> bool:
+    def greet_or_farewell(self, response: IncomingGroupStatus) -> bool:
         if not (KICKED1 in response.status and KICKED2 in response.status): return False
 
         admin, rest = response.status.split(KICKED1)
         kicked, _ = rest.split(KICKED2)
 
-        return super().greet_or_farewell(response=response, kicked=kicked, admin=admin)
+        return super()._greet_or_farewell(response=response, kicked=kicked, admin=admin)

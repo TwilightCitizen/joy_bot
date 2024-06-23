@@ -1,4 +1,5 @@
 # Library Imports
+from abc import abstractmethod
 
 from kik_unofficial.client import KikClient
 from kik_unofficial.datatypes.xmpp.chatting import IncomingGroupStatus
@@ -25,9 +26,13 @@ class GreetingOrFarewell:
     def set_greeting(self, greeting: str) -> None:
         self._message = greeting
 
-    def greet_or_farewell(self, response: IncomingGroupStatus, **kwargs) -> bool:
+    def _greet_or_farewell(self, response: IncomingGroupStatus, **kwargs) -> bool:
         if self._log_line is not None: print(self._log_line.format(**kwargs))
 
         self._kik_client.send_chat_message(peer_jid=response.group_jid, message=self._message.format(**kwargs))
 
         return True
+
+    @abstractmethod
+    def greet_or_farewell(self, response: IncomingGroupStatus) -> bool:
+        pass

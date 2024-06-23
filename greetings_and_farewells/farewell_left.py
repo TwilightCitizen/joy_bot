@@ -22,9 +22,9 @@ class FarewellLeft(GreetingOrFarewell):
             log_line="{left} Left"
         )
 
-    def greet_or_farewell(self, response: IncomingGroupStatus, **kwargs) -> bool:
+    def greet_or_farewell(self, response: IncomingGroupStatus) -> bool:
         if LEFT not in response.status: return False
 
         left, _ = response.status.split(LEFT)
 
-        return super().greet_or_farewell(response=response, left=left)
+        return super()._greet_or_farewell(response=response, left=left)

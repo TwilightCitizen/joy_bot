@@ -22,9 +22,9 @@ class GreetingJoined(GreetingOrFarewell):
             log_line="{joined} Joined"
         )
 
-    def greet_or_farewell(self, response: IncomingGroupStatus, **kwargs) -> bool:
+    def greet_or_farewell(self, response: IncomingGroupStatus) -> bool:
         if JOINED not in response.status: return False
 
         joined, _ = response.status.split(JOINED)
 
-        return super().greet_or_farewell(response=response, joined=joined)
+        return super()._greet_or_farewell(response=response, joined=joined)

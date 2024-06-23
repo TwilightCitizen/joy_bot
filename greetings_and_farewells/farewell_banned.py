@@ -22,9 +22,9 @@ class FarewellBanned(GreetingOrFarewell):
             log_line="{banned} Banned by {admin}"
         )
 
-    def greet_or_farewell(self, response: IncomingGroupStatus, **kwargs) -> bool:
+    def greet_or_farewell(self, response: IncomingGroupStatus) -> bool:
         if BANNED not in response.status: return False
 
         admin, banned = response.status.split(BANNED)
 
-        return super().greet_or_farewell(response=response, banned=banned, admin=admin)
+        return super()._greet_or_farewell(response=response, banned=banned, admin=admin)

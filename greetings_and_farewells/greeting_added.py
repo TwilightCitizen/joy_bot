@@ -22,9 +22,9 @@ class GreetingAdded(GreetingOrFarewell):
             log_line="{added} Added by {adder}"
         )
 
-    def greet_or_farewell(self, response: IncomingGroupStatus, **kwargs) -> bool:
+    def greet_or_farewell(self, response: IncomingGroupStatus) -> bool:
         if ADDED not in response.status: return False
 
         added, adder = response.status.split(ADDED)
 
-        return super().greet_or_farewell(response=response, added=added, adder=adder)
+        return super()._greet_or_farewell(response=response, added=added, adder=adder)
