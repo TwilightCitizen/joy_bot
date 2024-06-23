@@ -4,16 +4,12 @@ from kik_unofficial.client import KikClient
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
-# Application Imports
-
-from utilities_and_helpers.int_range import IntRange
-
 
 # Definitions
 
 class KeepAlivePing:
     def __init__(self, kik_client: KikClient, background_scheduler: BackgroundScheduler):
-        self.interval: IntRange = IntRange(bottom=1, top=30, default=10)
+        self.interval: int = 10
         self.id: str = "KEEP_ALIVE_PING"
         self.kik_client: KikClient = kik_client
         self.background_scheduler: BackgroundScheduler = background_scheduler
@@ -30,7 +26,7 @@ class KeepAlivePing:
         self.background_scheduler.add_job(
             func=self._send_keep_alive_ping,
             trigger="interval",
-            minutes=self.interval.get(),
+            minutes=self.interval,
             id=self.id,
         )
 
