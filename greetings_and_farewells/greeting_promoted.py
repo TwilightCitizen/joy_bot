@@ -23,7 +23,7 @@ class GreetingPromoted(GreetingOrFarewell):
             log_line="{promoted} Promoted by {admin}"
         )
 
-    def greet_promoted(self, response: IncomingGroupStatus) -> bool:
+    def greet_or_farewell(self, response: IncomingGroupStatus, **kwargs) -> bool:
         if not (PROMOTED1 in response.status and PROMOTED2 in response.status): return False
 
         admin, rest = response.status.split(PROMOTED1)

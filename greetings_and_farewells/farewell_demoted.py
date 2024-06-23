@@ -22,7 +22,7 @@ class FarewellDemoted(GreetingOrFarewell):
             log_line="{demoted} Demoted by {owner}"
         )
 
-    def farewell_demoted(self, response: IncomingGroupStatus) -> bool:
+    def greet_or_farewell(self, response: IncomingGroupStatus, **kwargs) -> bool:
         if DEMOTED not in response.status: return False
 
         owner, demoted = response.status.split(DEMOTED)

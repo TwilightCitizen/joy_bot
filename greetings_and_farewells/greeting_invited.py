@@ -22,7 +22,7 @@ class GreetingInvited(GreetingOrFarewell):
             log_line="{invited} Invited by {inviter}"
         )
 
-    def greet_invited(self, response: IncomingGroupStatus) -> bool:
+    def greet_or_farewell(self, response: IncomingGroupStatus, **kwargs) -> bool:
         if INVITED not in response.status: return False
 
         invited, inviter = response.status.split(INVITED)
