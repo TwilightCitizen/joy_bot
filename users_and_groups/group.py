@@ -75,7 +75,7 @@ class Group:
         if any(map(gof, [self.greeting_joined, self.greeting_invited, self.greeting_added])):
             self.pending_members.append(response.status_jid)
             self._kik_client.request_info_of_users(response.status_jid)
-            # self.kik_client.xiphias_get_users(response.status_jid)
+            self._kik_client.xiphias_get_users(response.status_jid)
         elif not any(map(gof, [
             self.farewell_left, self.farewell_kicked, self.farewell_banned,
             self.greeting_promoted, self.farewell_demoted
@@ -83,10 +83,13 @@ class Group:
             print("Other Incoming Group Status Received")
             print(response.raw_element.prettify())
 
-    def check_new_user(self, new_user: KikUser):
-        if new_user.jid in self.pending_members:
-            if self.require_profile_pics.check_new_user(new_user=new_user):
-                self.pending_members.remove(new_user.jid)
+    def check_user(self, user: KikUser):
+        if user.jid in self.pending_members:
+            print("Checking User")
+            print(user.__dict__)
+
+            if self.require_profile_pics.check_new_user(new_user=user):
+                self.pending_members.remove(user.jid)
             else:
-                self.members.append(new_user.jid)
-                self.pending_members.remove(new_user.jid)
+                self.members.append(user.jid)
+                self.pending_members.remove(user.jid)
