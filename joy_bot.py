@@ -106,16 +106,16 @@ class JoyBot(KikClientCallback):
     def on_peer_info_received(self, response: PeersInfoResponse):
         print("Peer Info Received")
         print(response.raw_element.prettify())
-        print(response.group_jid)
 
         kik_user: KikUser = response.users[0]
 
         for group in self.groups.values():
-            group.check_new_user(kik_user)
+            group.check_user(kik_user)
 
     def on_xiphias_get_users_response(self, response: Union[UsersResponse, UsersByAliasResponse]):
         print("Xiphias Info Received")
         print(response.raw_element.prettify())
+        print(response.users[0].__dict__)
 
     def on_group_sysmsg_received(self, response: IncomingGroupSysmsg):
         print("Group System Message Received")
